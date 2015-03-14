@@ -64,7 +64,7 @@ function executeFullImport( environmentSettings ) {
 				if ( minimatch( entry, 'iStock_*' ) ) {
 					var asset = {
 						type:     'iStock',
-						iStockId: extractId( entry ),
+						istockId: extractId( entry ),
 						filename: entry
 					};
 
