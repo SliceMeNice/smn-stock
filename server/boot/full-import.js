@@ -19,6 +19,8 @@ module.exports = function ( server ) {
 			AWS_QUEUE_REGION:   env.AWS_QUEUE_REGION,
 			AWS_QUEUE_URL: env.AWS_QUEUE_URL
 		} );
+
+		res.sendStatus( 200 );
 	} );
 
 	server.use( router );
