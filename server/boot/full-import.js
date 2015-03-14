@@ -17,7 +17,7 @@ module.exports = function ( server ) {
 			AWS_ACCESS_KEY_ID:  env.AWS_ACCESS_KEY_ID,
 			AWS_SECRET_KEY:     env.AWS_SECRET_KEY,
 			AWS_QUEUE_REGION:   env.AWS_QUEUE_REGION,
-			AWS_QUEUE_URL:      env.AWS_QUEUE_REGION
+			AWS_QUEUE_URL: env.AWS_QUEUE_URL
 		} );
 	} );
 
