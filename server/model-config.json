@@ -25,5 +25,17 @@
 	"Role": {
 		"dataSource": "db",
 		"public": false
+	},
+	"Asset": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Tag": {
+		"dataSource": "db",
+		"public": true
+	},
+	"AssetTagRelation": {
+		"dataSource": "db",
+		"public": false
 	}
 }

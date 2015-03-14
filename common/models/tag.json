@@ -1,0 +1,22 @@
+{
+	"name": "Tag",
+	"base": "PersistedModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		}
+	},
+	"validations": [],
+	"relations": {
+		"assets": {
+			"type": "hasMany",
+			"model": "Asset",
+			"foreignKey": "",
+			"through": "AssetTagRelation"
+		}
+	},
+	"acls": [],
+	"methods": []
+}

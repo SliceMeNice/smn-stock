@@ -1,0 +1,25 @@
+{
+	"name": "Asset",
+	"base": "PersistedModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"istockId": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"tags": {
+			"type": "hasMany",
+			"model": "Tag",
+			"foreignKey": "",
+			"through": "AssetTagRelation"
+		}
+	},
+	"acls": [],
+	"methods": []
+}

@@ -1,0 +1,10 @@
+{
+	"name": "AssetTagRelation",
+	"base": "PersistedModel",
+	"idInjection": true,
+	"properties": {},
+	"validations": [],
+	"relations": {},
+	"acls": [],
+	"methods": []
+}
