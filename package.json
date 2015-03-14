@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"main": "server/server.js",
 	"scripts": {
-		"start": "slc run",
+		"start": "node server/server.js",
 		"pretest": "jshint ."
 	},
 	"dependencies": {
