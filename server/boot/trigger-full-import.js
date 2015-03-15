@@ -1,42 +1,45 @@
-var Dropbox = require( 'dropbox' );
 var AWS = require( 'aws-sdk' );
+var Dropbox = require( 'dropbox' );
 var minimatch = require( 'minimatch' );
+var config = require( 'nconf' );
 
 
 module.exports = function ( server ) {
+	config.argv().env();
+
 	var router = server.loopback.Router();
 
-	router.get( '/full-import', function ( req, res ) {
-		var env = process.env;
-
-		executeFullImport( {
-			DROPBOX_API_KEY:    env.DROPBOX_API_KEY,
-			DROPBOX_API_SECRET: env.DROPBOX_API_SECRET,
-			DROPBOX_API_TOKEN:  env.DROPBOX_API_TOKEN,
-			DROPBOX_DIR:        env.DROPBOX_DIR,
-			AWS_ACCESS_KEY_ID:  env.AWS_ACCESS_KEY_ID,
-			AWS_SECRET_KEY:     env.AWS_SECRET_KEY,
-			AWS_QUEUE_REGION:   env.AWS_QUEUE_REGION,
-			AWS_QUEUE_URL: env.AWS_QUEUE_URL
-		} );
-
+	router.get( '/import/full', function ( req, res ) {
+		cleanupDatabase();
+		triggerFullImport( config );
 		res.sendStatus( 200 );
 	} );
 
 	server.use( router );
 };
 
-function executeFullImport( environmentSettings ) {
+function cleanupDatabase() {
+	var Asset = server.models.Asset;
+	Asset.destroyAll();
+
+	var Tag = server.models.Tag;
+	Tag.destroyAll();
+
+	var AssetTagRelation = server.models.AssetTagRelation;
+	AssetTagRelation.destroyAll();
+}
+
+function triggerFullImport( config ) {
 	var dropboxClient = new Dropbox.Client( {
-		key:     environmentSettings.DROPBOX_API_KEY,
-		secret:  environmentSettings.DROPBOX_API_SECRET,
-		token:   environmentSettings.DROPBOX_API_TOKEN,
+		key:    config.get( 'DROPBOX_API_KEY' ),
+		secret: config.get( 'DROPBOX_API_SECRET' ),
+		token:  config.get( 'DROPBOX_API_TOKEN' ),
 		sandbox: false
 	} );
 
 	dropboxClient.authDriver( new Dropbox.AuthDriver.NodeServer( 8191 ) );
 
-	dropboxClient.authenticate( function ( error, client ) {
+	dropboxClient.authenticate( function ( error, dropboxClient ) {
 		if ( error ) {
 			// Replace with a call to your own error-handling code.
 			//
@@ -49,7 +52,7 @@ function executeFullImport( environmentSettings ) {
 		//
 		// The user authorized your app, and everything went well.
 		// client is a Dropbox.Client instance that you can use to make API calls.
-		dropboxClient.readdir( environmentSettings.DROPBOX_DIR, function ( error, entries ) {
+		dropboxClient.readdir( config.get( 'DROPBOX_DIR' ), function ( error, entries ) {
 			if ( error ) {
 				return showError( error );  // Something went wrong.
 			}
@@ -73,25 +76,25 @@ function executeFullImport( environmentSettings ) {
 						asset: asset
 					};
 
-					sendSqsMessage( environmentSettings, JSON.stringify( message ) );
+					sendSqsMessage( config, JSON.stringify( message ) );
 				}
 			} );
 		} );
 	} );
 }
 
-function sendSqsMessage( environmentSettings, messageBody ) {
+function sendSqsMessage( config, messageBody ) {
 	AWS.config.update( {
-		accessKeyId:     environmentSettings.AWS_ACCESS_KEY_ID,
-		secretAccessKey: environmentSettings.AWS_SECRET_KEY,
-		region:          environmentSettings.AWS_QUEUE_REGION
+		accessKeyId:     config.get( 'AWS_ACCESS_KEY_ID' ),
+		secretAccessKey: config.get( 'AWS_SECRET_KEY' ),
+		region:          config.get( 'AWS_CRAWLER_QUEUE_REGION' )
 	} );
 
 	var sqs = new AWS.SQS();
 
 	var params = {
 		MessageBody:  messageBody || '',
-		QueueUrl:     environmentSettings.AWS_QUEUE_URL,
+		QueueUrl: config.get( 'AWS_CRAWLER_QUEUE_URL' ),
 		DelaySeconds: 0
 	};
 
