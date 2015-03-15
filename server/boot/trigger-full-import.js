@@ -71,12 +71,7 @@ function triggerFullImport( config ) {
 						filename: entry
 					};
 
-					var message = {
-						type:  'import',
-						asset: asset
-					};
-
-					sendSqsMessage( config, JSON.stringify( message ) );
+					sendSqsMessage( config, JSON.stringify( asset ) );
 				}
 			} );
 		} );
